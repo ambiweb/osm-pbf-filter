@@ -1,0 +1,79 @@
+{
+	"ImportPath": "github.com/ambiweb/osm-pbf-filter",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "4bd1920723d7b7c925de087aa32e2187708897f7"
+		},
+		{
+			"ImportPath": "github.com/golang/snappy",
+			"Rev": "d9eb7a3d35ec988b8585d4a0068e462c27d28380"
+		},
+		{
+			"ImportPath": "github.com/qedus/osmpbf",
+			"Rev": "e12caa5b72a36e80633cec097d74f676ef8603ad"
+		},
+		{
+			"ImportPath": "github.com/qedus/osmpbf/OSMPBF",
+			"Rev": "e12caa5b72a36e80633cec097d74f676ef8603ad"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/cache",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/comparer",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/errors",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/filter",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/iterator",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/journal",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/memdb",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/opt",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/storage",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/table",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/util",
+			"Rev": "6b4daa5362b502898ddf367c5c11deb9e7a5c727"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "9a2e24c3733eddc63871eda99f253e2db29bd3b9"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "a5b47d31c556af34a302ce5d659e6fea44d90de0"
+		}
+	]
+}

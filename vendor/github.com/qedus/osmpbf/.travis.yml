@@ -1,0 +1,21 @@
+language: go
+sudo: false
+go:
+  - 1.5.4
+  - 1.6.4
+  - 1.7.4
+  - tip
+
+install:
+  - go get -v github.com/qedus/osmpbf
+  - go get -u golang.org/x/tools/cmd/benchcmp
+
+script:
+  - make race
+  - make cover
+  - make bench
+
+after_success:
+  - go get -u github.com/mattn/goveralls
+  - export PATH=$PATH:$HOME/gopath/bin
+  - goveralls -coverprofile=profile.cov -service=travis-ci
