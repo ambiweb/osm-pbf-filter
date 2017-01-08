@@ -14,6 +14,18 @@ type DBKey struct {
 	ID   int64
 }
 
+// Bytes returns bytes representation of DBKey.
+func (k *DBKey) Bytes() []byte {
+	var buffer bytes.Buffer
+	enc := gob.NewEncoder(&buffer)
+
+	if err := enc.Encode(k); err != nil {
+		return nil
+	}
+
+	return buffer.Bytes()
+}
+
 // KeyValue returns key and value for a levelDB record.
 func KeyValue(v interface{}) (key, value []byte, err error) {
 	dbKey := &DBKey{}
@@ -51,4 +63,22 @@ func KeyValue(v interface{}) (key, value []byte, err error) {
 
 func (c *Command) dbPut(key, value []byte) error {
 	return c.LevelDB.Put(key, value, nil)
+}
+
+func (c *Command) dbGet(key []byte) (value []byte, err error) {
+	return c.LevelDB.Get(key, nil)
+}
+
+func (c *Command) dbDelete(key []byte) error {
+	return c.LevelDB.Delete(key, nil)
+}
+
+func detectType(key []byte) (osmpbf.MemberType, error) {
+	buffer := bytes.NewBuffer(bytes.TrimPrefix(key, collectedKeyPrefix))
+	dec := gob.NewDecoder(buffer)
+	var dbKey DBKey
+	if err := dec.Decode(&dbKey); err != nil {
+		return -1, err
+	}
+	return dbKey.Type, nil
 }
