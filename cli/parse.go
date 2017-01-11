@@ -130,4 +130,8 @@ func makeTagsMatcher(file string) (tags.Matcher, error) {
 
 const usage = `Usage:
 osm-pbf-filter [OPTIONS] FILE.pbf
+
+Options:
+  -tags YAML file with tags to match specified. Default 'tags.yaml' in current
+        directory.
 `
