@@ -1,10 +1,9 @@
 package run
 
 import (
-	"bytes"
-	"encoding/gob"
 	"encoding/json"
 	"io"
+	"log"
 
 	"github.com/ambiweb/osm-pbf-filter/tags"
 	"github.com/qedus/osmpbf"
@@ -24,12 +23,15 @@ type Command struct {
 
 // Run executes main logic.
 func Run(c *Command) error {
+	log.Print("Start transfering data from PBF to levelDB")
 	if err := c.PutData(); err != nil {
 		return err
 	}
+	log.Print("Start collecting related items")
 	if err := c.CollectRelated(); err != nil {
 		return err
 	}
+	log.Print("Preparing to output JSON")
 	if err := c.OutputJSON(); err != nil {
 		return err
 	}
@@ -102,6 +104,7 @@ func (c *Command) CollectRelated() error {
 	return c.TraverseCollected(func(k []byte, v interface{}) error {
 		switch v := v.(type) {
 		case *osmpbf.Relation:
+			log.Print("Relation found. Collecting members")
 			if err := c.collectMembers(v.Members); err != nil {
 				return err
 			}
@@ -118,22 +121,9 @@ func (c *Command) TraverseCollected(fn TraverseCollectedFunc) error {
 	iter := c.LevelDB.NewIterator(util.BytesPrefix(collectedKeyPrefix), nil)
 	defer iter.Release()
 	for iter.Next() {
-		buffer := bytes.NewBuffer(iter.Value())
-		dec := gob.NewDecoder(buffer)
+		log.Print("Got collected item. Decoding...")
 		var value interface{}
-		t, err := detectType(iter.Key())
-		if err != nil {
-			return err
-		}
-		switch t {
-		case osmpbf.NodeType:
-			value = new(osmpbf.Node)
-		case osmpbf.WayType:
-			value = new(osmpbf.Way)
-		case osmpbf.RelationType:
-			value = new(osmpbf.Relation)
-		}
-		if err := dec.Decode(&value); err != nil {
+		if err := json.Unmarshal(iter.Value(), &value); err != nil {
 			return err
 		}
 		if err := fn(iter.Key(), value); err != nil {
@@ -146,7 +136,10 @@ func (c *Command) TraverseCollected(fn TraverseCollectedFunc) error {
 func (c *Command) collectMembers(members []osmpbf.Member) error {
 	for _, m := range members {
 		dbKey := &DBKey{Type: m.Type, ID: m.ID}
-		key := dbKey.Bytes()
+		key, err := dbKey.Bytes()
+		if err != nil {
+			return err
+		}
 		value, err := c.dbGet(key)
 		if err != nil {
 			return err
@@ -160,10 +153,8 @@ func (c *Command) collectMembers(members []osmpbf.Member) error {
 		}
 
 		if m.Type == osmpbf.RelationType {
-			buffer := bytes.NewBuffer(value)
-			dec := gob.NewDecoder(buffer)
 			var v osmpbf.Relation
-			if err := dec.Decode(&v); err != nil {
+			if err := json.Unmarshal(value, &v); err != nil {
 				return err
 			}
 			if err := c.collectMembers(v.Members); err != nil {
@@ -177,13 +168,10 @@ func (c *Command) collectMembers(members []osmpbf.Member) error {
 // OutputJSON outputs collected entries as JSON.
 func (c *Command) OutputJSON() error {
 	io.WriteString(c.Stdout, "[")
-	enc := json.NewEncoder(c.Stdout)
 	comma := ""
-	err := c.TraverseCollected(func(_ []byte, v interface{}) error {
+	err := c.TraverseCollectedRaw(func(_, v []byte) error {
 		io.WriteString(c.Stdout, comma)
-		if err := enc.Encode(v); err != nil {
-			return err
-		}
+		c.Stdout.Write(v)
 		if comma == "" {
 			comma = ","
 		}
@@ -194,4 +182,19 @@ func (c *Command) OutputJSON() error {
 	}
 	io.WriteString(c.Stdout, "]")
 	return nil
+}
+
+// TraverseCollectedRawFunc is a function to use with TraverseCollectedRaw Command method.
+type TraverseCollectedRawFunc func(k, v []byte) error
+
+// TraverseCollectedRaw loops through the collected items and executes function on every item.
+func (c *Command) TraverseCollectedRaw(fn TraverseCollectedRawFunc) error {
+	iter := c.LevelDB.NewIterator(util.BytesPrefix(collectedKeyPrefix), nil)
+	defer iter.Release()
+	for iter.Next() {
+		if err := fn(iter.Key(), iter.Value()); err != nil {
+			return err
+		}
+	}
+	return iter.Error()
 }
