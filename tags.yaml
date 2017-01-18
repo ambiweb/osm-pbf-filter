@@ -1,0 +1,10 @@
+place:
+  - continent
+  - country
+  - city
+boundary: yes
+admin_level: yes
+amenity:
+  - cafe
+  - bar
+  - pub
